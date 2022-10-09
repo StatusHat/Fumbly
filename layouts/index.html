@@ -10,15 +10,20 @@
     <!-- Note that the content for index.html, as a sort of list page, will pull from content/_index.md -->
     {{.Content}}
   </div>
-  Recent posts:
-  <ul>
+  <div class="recent-posts">
+    <h2>Recent posts:</h2>
     {{ $pages := .Site.RegularPages }} {{ if .IsHome }}{{ $pages =
-    .Site.RegularPages }}{{ end }} {{ range (where $pages "Section" "!=" "") }}
-    <li>
-      <span class="date">{{ .PublishDate.Format "January 2, 2006" }}</span>
-      <a href="{{ .RelPermalink }}">{{ .Title | markdownify }}</a>
-    </li>
+    .Site.RegularPages }}{{ end }} {{ range first 3 $pages }}
+    <article>
+      <!-- this <div> includes the title summary -->
+      <div>
+        <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+        <time>{{ .PublishDate.Format "January 2, 2006" }}</time>
+        | {{ .ReadingTime }} {{ if eq .ReadingTime 1 }} minute {{ else }}
+        minutes {{ end }} {{ .Summary }}
+      </div>
+    </article>
     {{ end }}
-  </ul>
+  </div>
 </main>
 {{ end }}
