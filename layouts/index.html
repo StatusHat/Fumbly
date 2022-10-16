@@ -1,29 +1,54 @@
 {{ define "main" }}
-<main aria-role="main">
+<main>
   <header class="homepage-header">
     <h1>{{.Site.Title}}</h1>
-    {{ with .Params.subtitle }}
-    <span class="subtitle">{{.}}</span>
-    {{ end }}
   </header>
+
   <div class="homepage-content">
     <!-- Note that the content for index.html, as a sort of list page, will pull from content/_index.md -->
     {{.Content}}
   </div>
-  <div class="recent-posts">
-    <h2>Recent posts:</h2>
-    {{ $pages := .Site.RegularPages }} {{ if .IsHome }}{{ $pages =
-    .Site.RegularPages }}{{ end }} {{ range first 3 $pages }}
+
+  <!-- List of posts-->
+  <div class="homepage-posts">
+    <h2>Posts:</h2>
+    {{ $pages := where .Site.RegularPages "Section" "posts" }} {{ $paginator := .Paginate ($pages) }} {{
+    range $paginator.Pages }} {{ $title := .Title }} {{ $summary := .Summary }}
     <article>
-      <!-- this <div> includes the title summary -->
       <div>
-        <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
-        <time>{{ .PublishDate.Format "January 2, 2006" }}</time>
-        | {{ .ReadingTime }} {{ if eq .ReadingTime 1 }} minute {{ else }}
-        minutes {{ end }} {{ .Summary }}
-      </div>
+        <h3 class="title"><a href="{{ .RelPermalink }}">{{ $title }}</a></h3>
+        <div class="blog__info">
+            <time>{{ .PublishDate.Format "January 2, 2006" }}</time> | {{
+            .ReadingTime }} {{ if eq .ReadingTime 1 }} minute {{ else }} minutes
+            {{ end }} read
+        </div>
+      <div class="summary">{{ $summary | plainify | htmlUnescape }}</div>
     </article>
     {{ end }}
+    <br />
+    <!-- Pagination begins-->
+    {{ if or ($paginator.HasPrev) ($paginator.HasNext) }}
+    <div class="blog__navigateButtons">
+      {{ if $paginator.HasNext }}
+      <span class="blog__navigateButtons__older">
+        <a href="{{.Paginator.Next.URL}}">
+          {{ with .Site.Params.olderPosts }}{{ . }}{{ else }}{{ i18n
+          "postsOlder" }}{{ end }} <span class="arrow">← Older posts</span>
+        </a>
+      </span>
+      {{ end }} {{ if $paginator.HasPrev }}
+      <span class="blog__navigateButtons__newer">
+        <a href="{{.Paginator.Prev.URL}}">
+          <span class="arrow">Newer posts →</span> {{ with
+          .Site.Params.newerPosts }}{{ . }}{{ else }}{{ i18n "postsNewer" }}{{
+          end }}
+        </a>
+      </span>
+      {{ end }}
+    </div>
+    {{ end }}
+    <!-- Pagination ends-->
   </div>
+  <!-- End list of posts-->
 </main>
 {{ end }}
